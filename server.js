@@ -25,6 +25,7 @@ function conectarBD() {
   return pool;
 }
 }
+}
 
 // ######
 // Local onde as rotas (endpoints) serão definidas
