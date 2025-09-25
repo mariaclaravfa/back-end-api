@@ -13,8 +13,8 @@ let pool = null;
 const app = express(); // Inicializa o servidor Express
 const port = 3000; // Define a porta onde o servidor irá escutar
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
-conectarBD(){
-  //server.js
+
+//server.js
 // Função para obter uma conexão com o banco de dados
 function conectarBD() {
   if (!pool) {
@@ -24,8 +24,7 @@ function conectarBD() {
   }
   return pool;
 }
-}
-}
+
 
 // ######
 // Local onde as rotas (endpoints) serão definidas
@@ -35,12 +34,7 @@ app.get("/questoes", async (req, res) => {
   console.log("Rota GET /questoes solicitada"); // Log no terminal para indicar que a rota foi acessada
 
 
-
-  const db = new Pool({
-    // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
-    connectionString: process.env.URL_BD, // Usa a variável de ambiente do arquivo .env DATABASE_URL para a string de conexão
-  });
-
+  const db = conectarBD();
 
   try {
     const resultado = await db.query("SELECT * FROM questoes"); // Executa uma consulta SQL para selecionar todas as questões
@@ -66,7 +60,7 @@ app.get("/", async (req, res) => {
   console.log("Rota GET / solicitada"); // Log no terminal para indicar que a rota foi acessada
 
   //server.js
-const db = conectarBD(); // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
+  const db = conectarBD(); // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
 
   let dbStatus = "ok";
 
