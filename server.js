@@ -4,6 +4,8 @@
 import express from "express"; // Requisição do pacote do express
 import pkg from "pg"; // Requisição do pacote do pg (PostgreSQL)
 import dotenv from "dotenv"; // Importa o pacote dotenv para carregar variáveis de ambiente
+const { Pool } = pkg;
+let pool = null;
 
 // ######
 // Local onde as configurações do servidor serão feitas
@@ -11,7 +13,18 @@ import dotenv from "dotenv"; // Importa o pacote dotenv para carregar variáveis
 const app = express(); // Inicializa o servidor Express
 const port = 3000; // Define a porta onde o servidor irá escutar
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
-const { Pool } = pkg; // Obtém o construtor Pool do pacote pg para gerenciar conexões com o banco de dados PostgreSQL
+conectarBD(){
+  //server.js
+// Função para obter uma conexão com o banco de dados
+function conectarBD() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.URL_BD,
+    });
+  }
+  return pool;
+}
+}
 
 // ######
 // Local onde as rotas (endpoints) serão definidas
@@ -20,7 +33,7 @@ const { Pool } = pkg; // Obtém o construtor Pool do pacote pg para gerenciar co
 app.get("/questoes", async (req, res) => {
   console.log("Rota GET /questoes solicitada"); // Log no terminal para indicar que a rota foi acessada
 
-  const { Pool } = pkg; // Obtém o construtor Pool do pacote pg para gerenciar conexões com o banco de dados PostgreSQL
+
 
   const db = new Pool({
     // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
@@ -51,10 +64,8 @@ app.get("/", async (req, res) => {
 
   console.log("Rota GET / solicitada"); // Log no terminal para indicar que a rota foi acessada
 
-  const db = new Pool({
-    // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
-    connectionString: process.env.URL_BD, // Usa a variável de ambiente do arquivo .env DATABASE_URL para a string de conexão
-  });
+  //server.js
+const db = conectarBD(); // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
 
   let dbStatus = "ok";
 
