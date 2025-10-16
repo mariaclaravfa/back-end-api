@@ -172,6 +172,150 @@ app.get("/questoes", async (req, res) => {
     });
   }
 });
+// PRODUTOS//
+app.get("/produtos", async (req, res) => {
+
+  const db = conectarBD();
+
+  try {
+    const resultado = await db.query("SELECT * FROM produtos"); // Executa uma consulta SQL para selecionar todas os produtos
+    const dados = resultado.rows; // Obtém as linhas retornadas pela consulta
+    res.json(dados); // Retorna o resultado da consulta como JSON
+  } catch (e) {
+    console.error("Erro ao buscar produtos:", e); // Log do erro no servidor
+    res.status(500).json({
+      erro: "Erro interno do servidor",
+    });
+  }
+});
+app.get("/produtos/:id", async (req, res) => {
+  console.log("Rota GET /produtos/:id solicitada"); // Log no terminal para indicar que a rota foi acessada
+
+  try {
+    const id = req.params.id; // Obtém o ID do produto a partir dos parâmetros da URL
+    const db = conectarBD(); // Conecta ao banco de dados
+    const consulta = "SELECT * FROM produtos WHERE id = $1"; // Consulta SQL para selecionar o produto pelo ID
+    const resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
+    const dados = resultado.rows; // Obtém as linhas retornadas pela consulta
+
+    // Verifica se o produto foi encontrada
+    if (dados.length === 0) {
+      return res.status(404).json({ mensagem: "Produto não encontrado" }); // Retorna erro 404 se o produto não for encontrada
+    }
+
+    res.json(dados); // Retorna o resultado da consulta como JSON
+  } catch (e) {
+    console.error("Erro ao buscar produto:", e); // Log do erro no servidor
+    res.status(500).json({
+      erro: "Erro interno do servidor"
+    });
+  }
+});
+app.delete("/produtos/:id", async (req, res) => {
+  console.log("Rota DELETE /produtos/:id solicitada"); // Log no terminal para indicar que a rota foi acessada
+
+  try {
+    const id = req.params.id; // Obtém o ID do produto a partir dos parâmetros da URL
+    const db = conectarBD(); // Conecta ao banco de dados
+    let consulta = "SELECT * FROM produtos WHERE id = $1"; // Consulta SQL para selecionar o produto pelo ID
+    let resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
+    let dados = resultado.rows; // Obtém as linhas retornadas pela consulta
+
+    // Verifica se o produto foi encontrado
+    if (dados.length === 0) {
+      return res.status(404).json({ mensagem: "Produto não encontrado" }); // Retorna erro 404 se o produto não for encontrado
+    }
+
+    consulta = "DELETE FROM produto WHERE id = $1"; // Consulta SQL para deletar o produto pelo ID
+    resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
+    res.status(200).json({ mensagem: "Produto excluido com sucesso!!" }); // Retorna o resultado da consulta como JSON
+  } catch (e) {
+    console.error("Erro ao excluir produto:", e); // Log do erro no servidor
+    res.status(500).json({
+      erro: "Erro interno do servidor"
+    });
+  }
+});
+
+//server.js
+app.post("/produtos", async (req, res) => {
+  console.log("Rota POST /produtos solicitados"); // Log no terminal para indicar que a rota foi acessada
+
+  try {
+    const data = req.body; // Obtém os dados do corpo da requisição
+    // Validação dos dados recebidos
+    if (!data.nome || !data.descricao || !data.valor || !data.categoria || !data.cores || !data.imagem) {
+      return res.status(400).json({
+        erro: "Dados inválidos",
+        mensagem:
+          "Todos os campos (nome, descricao, valor, categoria, cores, imagem) são obrigatórios.",
+      });
+    }
+
+    const db = conectarBD(); // Conecta ao banco de dados
+
+    const consulta =
+      "INSERT INTO produtos (nome, descricao, valor, categoria, cores, imagem) VALUES ($1,$2,$3,$4,$5,$6) "; // Consulta SQL para inserir o produto
+    const produto = [data.enunciado, data.disciplina, data.tema, data.nivel]; // Array com os valores a serem inseridos
+    const resultado = await db.query(consulta, produto); // Executa a consulta SQL com os valores fornecidos
+    res.status(201).json({ mensagem: "Produto criado com sucesso!" }); // Retorna o resultado da consulta como JSON
+  } catch (e) {
+    console.error("Erro ao inserir produto:", e); // Log do erro no servidor
+    res.status(500).json({
+      erro: "Erro interno do servidor",
+    });
+  }
+});
+
+//server.js
+app.put("/produtos/:id", async (req, res) => {
+  console.log("Rota PUT /produtos solicitado"); // Log no terminal para indicar que a rota foi acessada
+
+  try {
+    const id = req.params.id; // Obtém o ID do produto a partir dos parâmetros da URL
+    const db = conectarBD(); // Conecta ao banco de dados
+    let consulta = "SELECT * FROM produtos WHERE id = $1"; // Consulta SQL para selecionar o produto pelo ID
+    let resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
+    let produto = resultado.rows; // Obtém as linhas retornadas pela consulta
+
+    // Verifica se a produto foi encontrado
+    if (produto.length === 0) {
+      return res.status(404).json({ message: "Produto não encontrado" }); // Retorna erro 404 se a produto não for encontrado
+    }
+
+    const data = req.body; // Obtém os dados do corpo da requisição
+
+    // Usa o valor enviado ou mantém o valor atual do banco
+    data.nome = data.nome || produto[0].nome;
+    data.descricao = data.descricao || produto[0].descricao;
+    data.valor = data.valor || produto[0].valor;
+    data.categoria = data.categoria || produto[0].categoria;
+    data.cores = data.cores || produto[0].cores;
+    data.imagem = data.imagem || produto[0].imagem;
+    
+
+    // Atualiza o produto
+    consulta ="UPDATE produto SET nome = $1, descricao= $2, valor = $3, categoria = $4, cores = $5, imagem = $6,  WHERE id = $7";
+    // Executa a consulta SQL com os valores fornecidos
+    resultado = await db.query(consulta, [
+      data.nome,
+      data.descricao,
+      data.valor,
+      data.categoria,
+      data.cores,
+      data.imagem,
+      id,
+    ]);
+
+    res.status(200).json({ message: "Produto atualizado com sucesso!" }); // Retorna o resultado da consulta como JSON
+  } catch (e) {
+    console.error("Erro ao atualizar produto:", e); // Log do erro no servidor
+    res.status(500).json({
+      erro: "Erro interno do servidor",
+    });
+  }
+});
+
 
 app.get("/", async (req, res) => {
   // Rota raiz do servidor
