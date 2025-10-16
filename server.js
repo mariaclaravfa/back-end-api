@@ -256,7 +256,7 @@ app.post("/produtos", async (req, res) => {
 
     const consulta =
       "INSERT INTO produtos (nome, descricao, valor, categoria, cores, imagem) VALUES ($1,$2,$3,$4,$5,$6) "; // Consulta SQL para inserir o produto
-    const produto = [data.enunciado, data.disciplina, data.tema, data.nivel]; // Array com os valores a serem inseridos
+    const produto = [data.nome, data.descricao, data.valor, data.categoria, data.cores, data.imagem]; // Array com os valores a serem inseridos
     const resultado = await db.query(consulta, produto); // Executa a consulta SQL com os valores fornecidos
     res.status(201).json({ mensagem: "Produto criado com sucesso!" }); // Retorna o resultado da consulta como JSON
   } catch (e) {
