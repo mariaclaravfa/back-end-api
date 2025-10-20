@@ -269,34 +269,29 @@ app.post("/produtos", async (req, res) => {
 
 //server.js
 app.put("/produtos/:id", async (req, res) => {
-  console.log("Rota PUT /produtos solicitado"); // Log no terminal para indicar que a rota foi acessada
+  console.log("Rota PUT /produtos solicitada");
 
   try {
-    const id = req.params.id; // Obtém o ID do produto a partir dos parâmetros da URL
-    const db = conectarBD(); // Conecta ao banco de dados
-    let consulta = "SELECT * FROM produtos WHERE id = $1"; // Consulta SQL para selecionar o produto pelo ID
-    let resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
-    let produto = resultado.rows; // Obtém as linhas retornadas pela consulta
+    const id = req.params.id;
+    const db = conectarBD();
+    let consulta = "SELECT * FROM produtos WHERE id = $1";
+    let resultado = await db.query(consulta, [id]);
+    let produto = resultado.rows;
 
-    // Verifica se a produto foi encontrado
     if (produto.length === 0) {
-      return res.status(404).json({ message: "Produto não encontrado" }); // Retorna erro 404 se a produto não for encontrado
+      return res.status(404).json({ message: "Produto não encontrado" });
     }
 
-    const data = req.body; // Obtém os dados do corpo da requisição
+    const data = req.body;
 
-    // Usa o valor enviado ou mantém o valor atual do banco
     data.nome = data.nome || produto[0].nome;
     data.descricao = data.descricao || produto[0].descricao;
     data.valor = data.valor || produto[0].valor;
     data.categoria = data.categoria || produto[0].categoria;
     data.cores = data.cores || produto[0].cores;
     data.imagem = data.imagem || produto[0].imagem;
-    
 
-    // Atualiza o produto
-  consulta = "UPDATE produto SET nome = $1, descricao = $2, valor = $3, categoria = $4, cores = $5, imagem = $6 WHERE id = $7";
-    // Executa a consulta SQL com os valores fornecidos
+    consulta = "UPDATE produtos SET nome = $1, descricao = $2, valor = $3, categoria = $4, cores = $5, imagem = $6 WHERE id = $7";
     resultado = await db.query(consulta, [
       data.nome,
       data.descricao,
@@ -307,14 +302,15 @@ app.put("/produtos/:id", async (req, res) => {
       id,
     ]);
 
-    res.status(200).json({ message: "Produto atualizado com sucesso!" }); // Retorna o resultado da consulta como JSON
+    res.status(200).json({ message: "Produto atualizado com sucesso!" });
   } catch (e) {
-    console.error("Erro ao atualizar produto:", e); // Log do erro no servidor
+    console.error("Erro ao atualizar produto:", e);
     res.status(500).json({
       erro: "Erro interno do servidor",
     });
   }
 });
+
 
 
 app.get("/", async (req, res) => {
