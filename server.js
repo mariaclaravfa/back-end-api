@@ -226,7 +226,7 @@ app.delete("/produtos/:id", async (req, res) => {
       return res.status(404).json({ mensagem: "Produto não encontrado" }); // Retorna erro 404 se o produto não for encontrado
     }
 
-    consulta = "DELETE FROM produto WHERE id = $1"; // Consulta SQL para deletar o produto pelo ID
+  consulta = "DELETE FROM produtos WHERE id = $1";
     resultado = await db.query(consulta, [id]); // Executa a consulta SQL com o ID fornecido
     res.status(200).json({ mensagem: "Produto excluido com sucesso!!" }); // Retorna o resultado da consulta como JSON
   } catch (e) {
@@ -295,7 +295,7 @@ app.put("/produtos/:id", async (req, res) => {
     
 
     // Atualiza o produto
-    consulta ="UPDATE produto SET nome = $1, descricao= $2, valor = $3, categoria = $4, cores = $5, imagem = $6,  WHERE id = $7";
+  consulta = "UPDATE produto SET nome = $1, descricao = $2, valor = $3, categoria = $4, cores = $5, imagem = $6 WHERE id = $7";
     // Executa a consulta SQL com os valores fornecidos
     resultado = await db.query(consulta, [
       data.nome,
